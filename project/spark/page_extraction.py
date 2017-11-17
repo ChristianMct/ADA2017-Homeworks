@@ -5,6 +5,8 @@ import sys
 
 APP_NAME = "Wikipedia Page Extraction"
 
+FILTER_REGEX = "(((B|b)attle|(S|s)iege) (of|on))"
+
 
 def main(sqlc, filename_in, filename_out, limit=None):
 
@@ -25,7 +27,7 @@ def main(sqlc, filename_in, filename_out, limit=None):
 
     print("============================================ Finished loading the data")
 
-    all_battle_pages = all_pages.filter(all_pages.title.rlike("((B|b)attle (of|on))"))
+    all_battle_pages = all_pages.filter(all_pages.title.rlike(FILTER_REGEX))
 
     if limit:
         all_battle_pages = all_battle_pages.limit(limit)
