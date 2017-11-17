@@ -25,7 +25,11 @@ def main(sqlc, filename_in, filename_out, limit=None):
 
     print("============================================ Finished loading the data")
 
-    all_battle_pages = all_pages.filter(all_pages.title.rlike("((B|b)attle (of|on))")).limit(limit)
+    all_battle_pages = all_pages.filter(all_pages.title.rlike("((B|b)attle (of|on))"))
+
+    if limit:
+        all_battle_pages = all_battle_pages.limit(limit)
+
     all_battle_pages.cache()
 
     print("============================================ Finished filtering %s" % all_battle_pages.count())
