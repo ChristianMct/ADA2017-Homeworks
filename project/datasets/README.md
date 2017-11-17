@@ -7,6 +7,8 @@ produced.
 
 Source file: ````hdfs:///datasets/wikipedia/enwiki-latest-pages-articles-multistream.xml````
 
-| File | Job | Version |
-| --- | --- | --- |
-| battles-0.xml | page_extraction.py | 0.1 |
+Location: ````hdfs:///user/mouchet/datasets/````
+
+| File | Job | Version | Size | Number of battle pages |
+| --- | --- | --- | --- | --- |
+| battles-0.xml | page_extraction.py | 0.1 | 127 Mo | 24089 |
