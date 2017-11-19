@@ -1,4 +1,5 @@
 .ipynb_checkpoints
 .DS_Store
 .idea/
-project/spark/outputs
+project/datasets/battle-pages-*.json
+
