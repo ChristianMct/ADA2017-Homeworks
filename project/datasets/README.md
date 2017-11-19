@@ -5,9 +5,9 @@ produced.
 
 ## Pages Extraction
 
-Source file: ````hdfs:///datasets/wikipedia/enwiki-latest-pages-articles-multistream.xml````
+Source file: ````hdfs:///datasets/wikipedia/enwiki-latest-pages-articles-multistream.xml```` (Cluster)
 
-Location: ````hdfs:///user/mouchet/datasets/````
+Location: ````hdfs:///user/mouchet/datasets/```` (Cluster) and ````datasets/```` (Git, zipped)
 
 | File  | Version | Size | Number of battle pages | Comment |
 | --- | --- | --- | --- | --- |
@@ -16,6 +16,8 @@ Location: ````hdfs:///user/mouchet/datasets/````
 | battle-pages-2.json | 0.3 | 124 Mo | 27255 | Set output to JSON for easier python processing |
 
 ## Fields Extraction
+
+Location: ````datasets/```` (Git)
 
 | Source | File | Version | Size | Infobox count | Coords count | Comment |
 | ---- | --- | ------- | ---- | ------------- | ------------ | ------- |
