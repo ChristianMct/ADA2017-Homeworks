@@ -45,8 +45,7 @@ def main(sqlc, filename_in, filename_out, limit=None):
                 t.revision.format.alias('format'),
                 t.revision.text.alias('text')) \
         .coalesce(1) \
-        .write.format('com.databricks.spark.xml') \
-        .options(rowTag='page', rootTag='pages') \
+        .write.format('json') \
         .save(filename_out)
 
 
