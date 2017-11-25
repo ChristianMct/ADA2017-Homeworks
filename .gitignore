@@ -2,4 +2,5 @@
 .DS_Store
 .idea/
 project/datasets/battle-pages-*.json
+__pycache__/
 
