@@ -3,9 +3,7 @@ import mwparserfromhell as mwp
 import multiprocessing as mp
 import sys
 
-
-def get_templates(tree, name):
-    return [t for t in tree.filter_templates() if t.name.matches(name)]
+from .utils import get_templates
 
 
 def get_infobox(wikitext):
