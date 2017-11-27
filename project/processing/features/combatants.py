@@ -5,8 +5,11 @@ from collections import OrderedDict
 
 ACRONYMS_PAT = re.compile("\b(?:[A-Z]\.?){2,}")
 
-def get_combatants(infobox):
-    return {"combatant_%s" % n: get_combatant(infobox.get("combatant%s" % n)) for n in range(1, 4)}
+
+def get_combatants(value):
+    if not value or value["infobox"].get("error"):
+        return {}
+    return {"combatant_%s" % n: get_combatant(value["infobox"].get("combatant%s" % n)) for n in range(1, 4)}
 
 
 def get_combatant(value):
