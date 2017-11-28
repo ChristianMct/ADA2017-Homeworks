@@ -21,6 +21,7 @@ def main(sqlc, filename_in, filename_out, limit=None):
         ]), False)
     ])
 
+    #  Reads the XML objects described by the schema
     all_pages = sqlc.read.format('com.databricks.spark.xml') \
         .options(rowTag='page') \
         .load(filename_in, schema=schem)
@@ -36,6 +37,7 @@ def main(sqlc, filename_in, filename_out, limit=None):
 
     print("============================================ Finished filtering %s" % all_battle_pages.count())
 
+    #  Write pages as JSON, one page per line
     t = all_battle_pages
     all_battle_pages \
         .select(t.id,
