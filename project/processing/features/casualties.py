@@ -7,21 +7,19 @@ from features.feature_utils import print_error, get_number
 
 # check around the value for an indicator of interest (e.g. killed)
 def check_value(regex, ws, i):
-    if re.search(regex,str(ws[i+1:i+2])) or re.search(regex+'*\:',str(ws[i-1])):
+    if re.search(regex,str(ws[i+1:i+2])) or re.search(regex+'.{0,5}\:',str(ws[i-1])):
         return True
     return False
 
 # get the information for one row, or one casualties description
-def get_features(params):
-    j = params.get('index')
-    w = params.get('row')
-    nbr = params.get('nbr')
+def get_features_line(row):
     kills = 0
     kills_c = 0
     wounds = 0
     wounds_c = 0
     total = 0
     total_c = 0
+    totalAll = 0
     missing = 0
     missing_c = 0
     captured = 0
@@ -30,12 +28,15 @@ def get_features(params):
     undefined = ""
     missed = 0
     try:
-        ws = w.split()
+        ws = row.split()
         for i,v in enumerate(ws):
             try:
                 number = get_number(v)
                 if number is not None:
-                    if len(ws) == 1:
+                    if re.search("\'\'\'.{0,20}\'\'\'", str(v)):
+                        totalAll = number
+                        found = True
+                    elif len(ws) == 1:
                         total = total + number
                         total_c = total_c+1
                         found = True
@@ -48,9 +49,12 @@ def get_features(params):
                             wounds = wounds + number
                             wounds_c = wounds_c + 1
                             found = True
-                        elif check_value('[cC]asualt', ws, i) or check_value('[tT]otal', ws, i) or check_value('[mM]en',ws, i): 
-                            total = total + number
-                            total_c = total_c + 1
+                        elif check_value('[cC]asualt', ws, i) or check_value('[t]otal', ws, i) or check_value('[mM]en',ws, i): 
+                             if re.search('Total.{0,5}\:',str(ws[i-1])):
+                                totalAll = number
+                            else:             
+                                total = total + number
+                                total_c = total_c + 1
                             found = True
                         elif check_value('[mM]issing', ws, i):
                             missing = missing + number
@@ -102,7 +106,9 @@ def get_features(params):
                 total = int(total/total_c)
             
         # if we didn't find a total estimation we create it from the other information                                         
-        if total == 0:
+        if not totalAll == 0:
+            total = totalAll
+        elif total == 0:
             total = kills + wounds + missing + captured
             
     except Exception as e:
@@ -111,8 +117,9 @@ def get_features(params):
             undefined = undefined + str(ws)
             missed = missed + 1
             print("line ", j, ": ", w)
-            
-    return {'j': j, 'missed_'+nbr : missed, 'kills_'+nbr : kills, 'wounds_'+nbr : wounds, 'missing_'+nbr : missing, 'captured_'+nbr : captured, 'casualties_'+nbr : total, 'undefined_'+nbr : undefined}            
+    
+    print("line containing a number but cannot be parsed : ", missed)
+    return {'kills' : kills, 'wounds' : wounds, 'missing' : missing, 'captured' : captured, 'casualties' : total}            
                 
 def get_casualties(df, column, nbr):
     df['kills_'+nbr] = 0

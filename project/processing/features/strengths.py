@@ -72,7 +72,7 @@ def get_features(params):
                     print_error()
                     undefined = undefined + " " + str(v)
                                                   
-        if total == 0:
+        if total == 0 or fromTo_c > 1:
             total = men 
             if fromTo_c > 1:
                 total = total + int(fromTo/fromTo_c)
