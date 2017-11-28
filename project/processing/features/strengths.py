@@ -3,42 +3,17 @@ import multiprocessing as mp
 import json
 import sys, os
 import pandas as pd
-
-
-def print_error():
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-
-    
-def get_number(string):
-    number = -1
-    rangeNbr = False
-    if re.search("\d+(?:\,\d+)[–,-]\d+(?:\,\d+)?",str(string)):
-        tmp = re.search("\d+(?:\,\d+)?[–,-]\d+(?:\,\d+)?",str(string)).group().replace(",","")
-        tmps = tmp.split('–')
-        rangeNbr = True
-        if not len(tmps)== 2:
-            tmps = tmp.split('-')
-            if not len(tmps)== 2:
-                rangeNbr = False
-        if rangeNbr:
-            number = int((int(tmps[0])+int(tmps[1]))/2)
-    if (not rangeNbr) and re.search("[+-]?\d+(?:\,\d+)?",str(string)):
-        number = int(re.search("[+-]?\d+(?:\,\d+)?",str(string)).group().replace(",",""))
-    if (number >= 0) and (number < 10000000): 
-            return number
-    else :
-        return None
+from features.feature_utils import print_error, get_number
 
 def check_value(regex, ws, i):
     if re.search(regex,str(ws[i-1])) or re.search(regex,str(ws[i+1:i+2])) or re.search(regex,str(ws[i])):
         return True
     return False
     
-def get_strengths_line(params):
+def get_features(params):
     j = params.get('index')
     w = params.get('row')
+    nbr = params.get('nbr')
     total = 0
     total_c = 0
     men = 0
@@ -92,7 +67,7 @@ def get_strengths_line(params):
                     number = get_number(ws)
                     if number is not None:
                         missed = missed + 1
-                        print("line ", j, ": ", w)
+                        #print("line ", j, ": ", w) #uncomment to see unparsed lines
                 except Exception as e:
                     print_error()
                     undefined = undefined + " " + str(v)
@@ -109,25 +84,25 @@ def get_strengths_line(params):
             print("line ", j, ": ", w)
             
             
-    return {'j': j, 'missed' : missed, 'total': total, 'undefined' : undefined}            
+    return {'j': j, 'missed_'+nbr : missed, 'strength_'+nbr : total, 'undefined_'+nbr : undefined}            
                 
 def get_strengths(df, column, nbr):
     df['undefined_'+nbr] = ""
-    df['total_'+nbr] = 0
+    df['strength_'+nbr] = 0
     missed = 0
     
     thread_c = mp.cpu_count()
     pool = mp.Pool(thread_c)
     params = []
     for j,w in enumerate(column):  
-        params.append({'index' : j, 'row' : w})
+        params.append({'index' : j, 'row' : w, 'nbr' : nbr})
         
-    data = pool.imap_unordered(get_strengths_line, params)
+    data = pool.imap_unordered(get_features, params)
     
     for i, v in enumerate(data, 1):
         index = v.get('j')
-        df.loc[(index, 'total_'+nbr)] = v['total']
-        df.loc[(index, 'undefined_'+nbr)] = v['undefined']
-        missed = missed + v['missed']
+        df.loc[(index, 'strength_'+nbr)] = v['strength_'+nbr]
+        df.loc[(index, 'undefined_'+nbr)] = v['undefined_'+nbr]
+        missed = missed + v['missed_'+nbr]
     return missed
         

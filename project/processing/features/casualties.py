@@ -3,33 +3,7 @@ import multiprocessing as mp
 import json
 import sys, os
 import pandas as pd
-
-# Print the error, line and information
-def print_error():
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    print(exc_type, fname, exc_tb.tb_lineno)
-
-# Retrieve a number or a number range
-def get_number(string):
-    rangeNbr = False
-    number = -1
-    if re.search("\d+(?:\,\d+)[–,-]\d+(?:\,\d+)?",str(string)):
-        tmp = re.search("\d+(?:\,\d+)?[–,-]\d+(?:\,\d+)?",str(string)).group().replace(",","")
-        tmps = tmp.split('–') #not a usual "-" in most cases
-        rangeNbr = True
-        if not len(tmps)== 2: #if the split doesn't work, we try with usual "-"
-            tmps = tmp.split('-')
-            if not (len(tmps)== 2):
-                rangeNbr = False #if the split fail, we still try to retrieve one number
-        if rangeNbr:
-            number = int((int(tmps[0])+int(tmps[1]))/2) #if split succeed then we do the average
-    if (not rangeNbr) and re.search("[+-]?\d+(?:\,\d+)?",str(string)):
-        number = int(re.search("[+-]?\d+(?:\,\d+)?",str(string)).group().replace(",",""))
-    if number >= 0 and number < 10000000: 
-            return number
-    else :
-        return None
+from features.feature_utils import print_error, get_number
 
 # check around the value for an indicator of interest (e.g. killed)
 def check_value(regex, ws, i):
@@ -38,9 +12,10 @@ def check_value(regex, ws, i):
     return False
 
 # get the information for one row, or one casualties description
-def get_casualties_line(params):
+def get_features(params):
     j = params.get('index')
     w = params.get('row')
+    nbr = params.get('nbr')
     kills = 0
     kills_c = 0
     wounds = 0
@@ -107,7 +82,7 @@ def get_casualties_line(params):
                     number = get_number(ws)
                     if number is not None:
                         missed = missed + 1
-                        print("line ", j, ": ", w)
+                        #print("line ", j, ": ", w) #uncomment to see unparsed lines
                 except Exception as e:
                     print_error()
                     undefined = undefined + " " + str(v)
@@ -137,7 +112,7 @@ def get_casualties_line(params):
             missed = missed + 1
             print("line ", j, ": ", w)
             
-    return {'j': j, 'missed': missed, 'kills' : kills, 'wounds' : wounds, 'missing' : missing, 'captured' : captured, 'total' : total, 'undefined' : undefined}            
+    return {'j': j, 'missed_'+nbr : missed, 'kills_'+nbr : kills, 'wounds_'+nbr : wounds, 'missing_'+nbr : missing, 'captured_'+nbr : captured, 'casualties_'+nbr : total, 'undefined_'+nbr : undefined}            
                 
 def get_casualties(df, column, nbr):
     df['kills_'+nbr] = 0
@@ -145,27 +120,27 @@ def get_casualties(df, column, nbr):
     df['missing_'+nbr] = 0
     df['undefined_'+nbr] = ""
     df['captured_'+nbr] = 0
-    df['total_'+nbr] = 0
+    df['casualties_'+nbr] = 0
     missed = 0
     
     thread_c = mp.cpu_count()
     pool = mp.Pool(thread_c)
     params = []
     for j,w in enumerate(column):  
-        params.append({'index' : j, 'row' : w})
+        params.append({'index' : j, 'row' : w, 'nbr' : nbr})
         
-    data = pool.imap_unordered(get_casualties_line, params)
+    data = pool.imap_unordered(get_features, params)
     
     for i, v in enumerate(data, 1):
         try:
             index = v.get('j')
-            df.loc[(index, 'kills_'+nbr)] = v['kills']
-            df.loc[(index, 'wounds_'+nbr)] = v['wounds']
-            df.loc[(index, 'total_'+nbr)] = v['total']
-            df.loc[(index, 'missing_'+nbr)] = v['missing']
-            df.loc[(index, 'captured_'+nbr)] = v['captured']
-            df.loc[(index, 'undefined_'+nbr)] = v['undefined']
-            missed = missed + v['missed']
+            df.loc[(index, 'kills_'+nbr)] = v['kills_'+nbr]
+            df.loc[(index, 'wounds_'+nbr)] = v['wounds_'+nbr]
+            df.loc[(index, 'casualties_'+nbr)] = v['casualties_'+nbr]
+            df.loc[(index, 'missing_'+nbr)] = v['missing_'+nbr]
+            df.loc[(index, 'captured_'+nbr)] = v['captured_'+nbr]
+            df.loc[(index, 'undefined_'+nbr)] = v['undefined_'+nbr]
+            missed = missed + v['missed_'+nbr]
         except Exception as e:
             print_error()
             print("error at ", v)
