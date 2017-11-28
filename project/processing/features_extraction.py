@@ -13,7 +13,7 @@ def extract_battle_features(line):
         return None
 
     features = dict()
-    for module in [combatants, date, coordinates]:
+    for module in [combatants, date, coordinates, strengths, casualties]:
         features.update(module.get_features(battle))
 
     features.update(results.get_features(battle, {cl: features.get(cl, []) for cl in combatants.COMBATANT_LISTS}))

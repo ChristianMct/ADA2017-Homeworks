@@ -96,7 +96,7 @@ def get_features_line(row):
         
         # if the text contains one of these keywords, there is a high probability that it contains number from multiple sources
         # we then divide by the number of appearances for kills, ...
-        if re.search('sources',str(ws)) or re.search('estimate',str(ws)) or re.search('per',str(ws)):
+        if re.search('sources',str(ws)) or re.search('estimate',str(ws)) or re.search('per',str(ws)) or re.search('claim', str(ws)):
             if not kills_c == 0:
                 kills = int(kills/kills_c)
             if not wounds_c == 0:
