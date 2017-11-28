@@ -5,23 +5,24 @@ import sys, os
 import pandas as pd
 from features.feature_utils import print_error, get_number
 
+CASUALTY_FIRST = [" casualties_1", "casualties_2", "casualties_3", "casualties_4"]
+FEATURE_LIST = ["killed", "wounded", "missing", "captured", "casualties"]
+
 # check around the value for an indicator of interest (e.g. killed)
 def check_value(regex, ws, i):
-    if re.search(regex,str(ws[i+1:i+2])) or re.search(regex+'*\:',str(ws[i-1])):
+    if re.search(regex,str(ws[i+1:i+2])) or re.search(regex+'.{0,5}\:',str(ws[i-1])):
         return True
     return False
 
 # get the information for one row, or one casualties description
-def get_features(params):
-    j = params.get('index')
-    w = params.get('row')
-    nbr = params.get('nbr')
+def get_features_line(row):
     kills = 0
     kills_c = 0
     wounds = 0
     wounds_c = 0
     total = 0
     total_c = 0
+    totalAll = 0
     missing = 0
     missing_c = 0
     captured = 0
@@ -30,12 +31,15 @@ def get_features(params):
     undefined = ""
     missed = 0
     try:
-        ws = w.split()
+        ws = row.split()
         for i,v in enumerate(ws):
             try:
                 number = get_number(v)
                 if number is not None:
-                    if len(ws) == 1:
+                    if re.search("\'\'\'.{0,20}\'\'\'", str(v)):
+                        totalAll = number
+                        found = True
+                    elif len(ws) == 1:
                         total = total + number
                         total_c = total_c+1
                         found = True
@@ -48,9 +52,12 @@ def get_features(params):
                             wounds = wounds + number
                             wounds_c = wounds_c + 1
                             found = True
-                        elif check_value('[cC]asualt', ws, i) or check_value('[tT]otal', ws, i) or check_value('[mM]en',ws, i): 
-                            total = total + number
-                            total_c = total_c + 1
+                        elif check_value('[cC]asualt', ws, i) or check_value('[t]otal', ws, i) or check_value('[mM]en',ws, i): 
+                            if re.search('Total.{0,5}\:',str(ws[i-1])):
+                                totalAll = number
+                            else:             
+                                total = total + number
+                                total_c = total_c + 1
                             found = True
                         elif check_value('[mM]issing', ws, i):
                             missing = missing + number
@@ -102,47 +109,33 @@ def get_features(params):
                 total = int(total/total_c)
             
         # if we didn't find a total estimation we create it from the other information                                         
-        if total == 0:
+        if not totalAll == 0:
+            total = totalAll
+        elif total == 0:
             total = kills + wounds + missing + captured
             
     except Exception as e:
-        if not pd.isnull(w): #if not nan, we indicate the error and count it as a parsing fail
+        if not pd.isnull(row): #if not nan, we indicate the error and count it as a parsing fail
             print_error()
             undefined = undefined + str(ws)
             missed = missed + 1
             print("line ", j, ": ", w)
-            
-    return {'j': j, 'missed_'+nbr : missed, 'kills_'+nbr : kills, 'wounds_'+nbr : wounds, 'missing_'+nbr : missing, 'captured_'+nbr : captured, 'casualties_'+nbr : total, 'undefined_'+nbr : undefined}            
+    
+    #print("line containing a number but cannot be parsed : ", missed)
+    return {FEATURE_LIST[0] : kills, FEATURE_LIST[1] : wounds, FEATURE_LIST[2] : missing, FEATURE_LIST[3] : captured, FEATURE_LIST[4] : total}            
                 
-def get_casualties(df, column, nbr):
-    df['kills_'+nbr] = 0
-    df['wounds_'+nbr] = 0
-    df['missing_'+nbr] = 0
-    df['undefined_'+nbr] = ""
-    df['captured_'+nbr] = 0
-    df['casualties_'+nbr] = 0
-    missed = 0
+
+def get_features(battle_json):
+    if not battle_json or battle_json["infobox"].get("error"):
+        return {}
     
-    thread_c = mp.cpu_count()
-    pool = mp.Pool(thread_c)
-    params = []
-    for j,w in enumerate(column):  
-        params.append({'index' : j, 'row' : w, 'nbr' : nbr})
-        
-    data = pool.imap_unordered(get_features, params)
+    values = dict()
+    values.update({CASUALTY_FIRST[i-1] : get_features_line(battle_json["infobox"].get("casualties%s" % i)) for i in range(1,len(CASUALTY_FIRST)+1)})
     
-    for i, v in enumerate(data, 1):
-        try:
-            index = v.get('j')
-            df.loc[(index, 'kills_'+nbr)] = v['kills_'+nbr]
-            df.loc[(index, 'wounds_'+nbr)] = v['wounds_'+nbr]
-            df.loc[(index, 'casualties_'+nbr)] = v['casualties_'+nbr]
-            df.loc[(index, 'missing_'+nbr)] = v['missing_'+nbr]
-            df.loc[(index, 'captured_'+nbr)] = v['captured_'+nbr]
-            df.loc[(index, 'undefined_'+nbr)] = v['undefined_'+nbr]
-            missed = missed + v['missed_'+nbr]
-        except Exception as e:
-            print_error()
-            print("error at ", v)
-    return missed
+    values_final = dict()
+    for n in range(1, len(CASUALTY_FIRST)+1):
+         for i in range(1,len(FEATURE_LIST)+1):
+            values_final.update({FEATURE_LIST[i-1]+"_"+str(n) : values.get(CASUALTY_FIRST[n-1]).get(FEATURE_LIST[i-1])})
+   
+    return values_final
         

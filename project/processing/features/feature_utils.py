@@ -14,6 +14,9 @@ def print_error():
 def get_number(string):
     rangeNbr = False
     number = -1
+    if re.search("url", str(string)) or re.search("www", str(string)):
+        if not re.search("[+-]?\d+(?:\,\d+)?(?:\,\d+)?", str(string)[0:10]):
+            return None
     if re.search("\d+(?:\,\d+)[–,-]\d+(?:\,\d+)?",str(string)):
         tmp = re.search("\d+(?:\,\d+)?[–,-]\d+(?:\,\d+)?",str(string)).group().replace(",","")
         tmps = tmp.split('–') #not a usual "-" in most cases
@@ -24,9 +27,9 @@ def get_number(string):
                 rangeNbr = False #if the split fail, we still try to retrieve one number
         if rangeNbr:
             number = int((int(tmps[0])+int(tmps[1]))/2) #if split succeed then we do the average
-    if (not rangeNbr) and re.search("[+-]?\d+(?:\,\d+)?",str(string)):
-        number = int(re.search("[+-]?\d+(?:\,\d+)?",str(string)).group().replace(",",""))
-    if number >= 0 and number < 10000000: 
+    if (not rangeNbr) and re.search("[+-]?\d+(?:\,\d+)?(?:\,\d+)?",str(string)):
+        number = int(re.search("[+-]?\d+(?:\,\d+)?(?:\,\d+)?",str(string)).group().replace(",",""))
+    if number >= 0 and number < 5000000: 
             return number
     else :
         return None
