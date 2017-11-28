@@ -1,6 +1,15 @@
-def remove_ref(wikitext):
-    return wikitext
+import sys
+import os
+import multiprocessing as mp
 
 
-def get_templates(tree, name):
-    return [t for t in tree.filter_templates() if t.name.matches(name)]
+def process_file_by_line(file_in, file_out, processing_func):
+    line = file_in.readlines()
+    line_c = len(line)
+    thread_c = mp.cpu_count()
+    pool = mp.Pool(thread_c)
+    data = pool.imap_unordered(processing_func, line)
+    for i, processed_line in enumerate(data, 1):
+        sys.stdout.write('\rProcessing %i pages using %i threads... (%i %%)' % (line_c, thread_c, (i/line_c)*100))
+        if processed_line:
+            file_out.write(processed_line+os.linesep)

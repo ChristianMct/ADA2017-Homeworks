@@ -3,6 +3,8 @@ import re
 import difflib as dl
 import operator
 
+from . import combatants
+
 RESULT_QUALIFIERS = ("decisive", "major", "crushing", "tactical", "tactically", "strategic", "strategically", "pyrrhic")
 
 RESULT_QUALIFIERS_EQUIV = {"tactically": "tactical", "strategically": "strategic"}
@@ -72,17 +74,15 @@ def render_result_for_comb(results, combatant):
 
 
 def results_dicts_to_features(results):
-    return {
+    features = {
         "indecisive": "indecisive" in [res["type"] for res in results],
         "tactical_indecisive":  "indecisive" in [res["type"] for res in results if "tactical" in res["qualifiers"]],
         "strategic_indecisive":  "indecisive" in [res["type"] for res in results if "strategic" in res["qualifiers"]],
-        "result_combatant_1": render_result_for_comb(results, "combatant_1"),
-        "result_combatant_2": render_result_for_comb(results, "combatant_2"),
-        "result_combatant_3": render_result_for_comb(results, "combatant_3"),
     }
+    features.update({"result_combatant_%i" % i: render_result_for_comb(results, combatants.COMBATANT_LISTS[i-1]) for i in range(1, 4)})
+    return features
 
 
 def get_features(value, combatants):
-    results =  get_results(value, combatants)
-
+    results = get_results(value, combatants)
     return results_dicts_to_features(results)
