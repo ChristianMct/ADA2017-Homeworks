@@ -83,9 +83,17 @@ def get_coordinates(coord_string):
         
 
 def get_features(battle_json):
-    coord_str = battle_json["infobox"].get("coordinates", battle_json.get("coordinates", None))
+
+    coord_str = battle_json["infobox"].get("coordinates", "").strip()
+    src = "ib:"
+    if not coord_str:
+        coord_str = battle_json.get("coordinates", None)
+        src = "ext:"
+
     coord_parsed = get_coordinates(coord_str)
+
     return {
         LATITUDE: coord_parsed.get("latitude"),
         LONGITUDE: coord_parsed.get("longitude"),
+        "source": src+str(coord_str)
     }

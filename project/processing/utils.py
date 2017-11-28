@@ -16,3 +16,4 @@ def process_file_by_line(file_in, file_out, processing_func, limit=None):
         sys.stdout.write('\rProcessing %i pages using %i threads... (%i %%)' % (line_c, thread_c, (i/line_c)*100))
         if processed_line:
             file_out.write(processed_line+os.linesep)
+    sys.stdout.write('\n')

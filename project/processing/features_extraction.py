@@ -26,6 +26,6 @@ if len(sys.argv) < 3:
 
 filename_in = sys.argv[1]
 filename_out = sys.argv[2]
-limit = int(sys.argv[3]) if len(sys.argv) >= 4 else -1
+limit = int(sys.argv[3]) if len(sys.argv) >= 4 else None
 
 process_file_by_line(open(filename_in, mode="r"), open(filename_out, mode="w"), extract_battle_features, limit)
