@@ -1,5 +1,8 @@
 import re
 
+LATITUDE = "latitude"
+LONGITUDE = "longitude"
+
 def hms2degrees(coord,beginning,ending,lat):
     if re.search(beginning+'(.*?)\|(.*)'+ending,coord):
         if re.search(beginning+'(.*?)\|(.*)'+ending,coord).group(3) != '':
@@ -39,8 +42,10 @@ def hms2degrees(coord,beginning,ending,lat):
     return 0
 
 
-
 def get_coordinates(coord_string):
+    if not coord_string:
+        return {}
+
     coord_string=coord_string.strip()
     try:
         latitude = hms2degrees(coord_string, '(Coord|coord)\|','(N|S)','lat')
@@ -76,4 +81,11 @@ def get_coordinates(coord_string):
         except:
             return {'source':(coord_string)}
         
-   
+
+def get_features(battle_json):
+    coord_str = battle_json["infobox"].get("coordinates", battle_json.get("coordinates", None))
+    coord_parsed = get_coordinates(coord_str)
+    return {
+        LATITUDE: coord_parsed.get("latitude"),
+        LONGITUDE: coord_parsed.get("longitude"),
+    }

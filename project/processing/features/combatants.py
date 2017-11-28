@@ -1,20 +1,21 @@
 import mwparserfromhell as mw
 import re
-from utils import get_templates
+from .feature_utils import get_templates
 from collections import OrderedDict
+
+COMBATANT_FIRST = ["combatant_first_1", "combatant_first_2", "combatant_first_3"]
+COMBATANT_LISTS = ["combatant_list_1", "combatant_list_2", "combatant_list_3"]
 
 ACRONYMS_PAT = re.compile("\b(?:[A-Z]\.?){2,}")
 
 
-def get_combatants(value):
-    if not value or value["infobox"].get("error"):
-        return {}
-    return {"combatant_%s" % n: get_combatant(value["infobox"].get("combatant%s" % n)) for n in range(1, 4)}
+def get_combatants(battle_infobox_json):
+    return {"combatant_%s" % n: get_combatant(battle_infobox_json.get("combatant%s" % n)) for n in range(1, 4)}
 
 
 def get_combatant(value):
     if not value:
-        return
+        return []
 
     wt = mw.parse(value.strip())
 
@@ -33,3 +34,14 @@ def get_combatant(value):
     acronyms = ACRONYMS_PAT.findall(non_ref_text)
 
     return list(OrderedDict.fromkeys(links_e + templates_e + acronyms))  # Removes duplicates
+
+
+def get_features(battle_json):
+    if not battle_json or battle_json["infobox"].get("error"):
+        return {}
+
+    comb_lists = get_combatants(battle_json["infobox"])
+    features = dict()
+    features.update({COMBATANT_FIRST[i-1]: next(iter(comb_lists.get("combatant_%i" % i)), None) for i in range(1, 4)})
+    features.update({COMBATANT_LISTS[i-1]: comb_lists.get("combatant_%i" % i) for i in range(1, 4)})
+    return features
