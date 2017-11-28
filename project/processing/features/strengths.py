@@ -5,15 +5,15 @@ import sys, os
 import pandas as pd
 from features.feature_utils import print_error, get_number
 
+STRENGTH_FIRST = ["strength_1", "strength_2", "strength_3"]
+FEATURE = "strength"
+
 def check_value(regex, ws, i):
     if re.search(regex,str(ws[i-1])) or re.search(regex,str(ws[i+1:i+2])) or re.search(regex,str(ws[i])):
         return True
     return False
     
-def get_features(params):
-    j = params.get('index')
-    w = params.get('row')
-    nbr = params.get('nbr')
+def get_features_line(row):
     total = 0
     total_c = 0
     men = 0
@@ -24,7 +24,7 @@ def get_features(params):
     undefined = ""
     missed = 0
     try:
-        ws = w.split()
+        ws = row.split()
         for i,v in enumerate(ws):
             try:
                 number = get_number(v)
@@ -77,32 +77,21 @@ def get_features(params):
             if fromTo_c > 1:
                 total = total + int(fromTo/fromTo_c)
     except Exception as e:
-        if not pd.isnull(w):
+        if not pd.isnull(row):
             print_error()
             undefined = undefined + str(ws)
             missed = missed + 1
-            print("line ", j, ": ", w)
+            print("line ", j, ": ", row)
             
             
-    return {'j': j, 'missed_'+nbr : missed, 'strength_'+nbr : total, 'undefined_'+nbr : undefined}            
+    return {FEATURE : total}            
                 
-def get_strengths(df, column, nbr):
-    df['undefined_'+nbr] = ""
-    df['strength_'+nbr] = 0
-    missed = 0
+def get_features(battle_json):
+    if not battle_json or battle_json["infobox"].get("error"):
+        return {}
     
-    thread_c = mp.cpu_count()
-    pool = mp.Pool(thread_c)
-    params = []
-    for j,w in enumerate(column):  
-        params.append({'index' : j, 'row' : w, 'nbr' : nbr})
-        
-    data = pool.imap_unordered(get_features, params)
+    values = dict()
+    values.update({STRENGTH_FIRST[i-1] : get_features_line(battle_json["infobox"].get("strength%s" % i)).get(FEATURE) for i in range(1,len(STRENGTH_FIRST)+1)})
     
-    for i, v in enumerate(data, 1):
-        index = v.get('j')
-        df.loc[(index, 'strength_'+nbr)] = v['strength_'+nbr]
-        df.loc[(index, 'undefined_'+nbr)] = v['undefined_'+nbr]
-        missed = missed + v['missed_'+nbr]
-    return missed
+    return values
         
