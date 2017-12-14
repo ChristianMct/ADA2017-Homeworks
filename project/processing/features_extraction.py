@@ -17,6 +17,7 @@ def extract_battle_features(line):
         features.update(module.get_features(battle))
 
     features.update(results.get_features(battle, {cl: features.get(cl, []) for cl in combatants.COMBATANT_LISTS}))
+    features["title"] = battle["title"]
 
     return json.dumps(features) if features else None
 

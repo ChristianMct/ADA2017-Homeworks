@@ -36,7 +36,7 @@ def get_number(string):
 
 
 def remove_ref(wikitext):
-    return wikitext
+    return " ".join([str(t) for t in wikitext.filter(recursive=False, matches=lambda node: not node.startswith(("<ref", )))])
 
 
 def get_templates(tree, name):
