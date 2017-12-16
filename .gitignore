@@ -3,7 +3,7 @@
 .idea/
 project/datasets/battle-pages-*.json
 __pycache__/
-
+*.pdf
 *.log
 *.dvi
 *.aux
