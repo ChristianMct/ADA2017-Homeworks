@@ -4,3 +4,7 @@
 project/datasets/battle-pages-*.json
 __pycache__/
 
+*.log
+*.dvi
+*.aux
+*.ps
