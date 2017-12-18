@@ -55,7 +55,7 @@ rangesep = re.compile("(to|until|-|–|->)")
 def parse_date(date):
     if "BC" in date:
         return None, None
-    date = date.split("(")[0].replace("\xa0", " ")
+    date = re.sub(r'\(.*\)', '', date).replace("\xa0", " ")
     if rangesep.search(date):
         try:
             return drp.parse(date)
