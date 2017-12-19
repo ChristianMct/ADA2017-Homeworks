@@ -38,6 +38,6 @@ Found the dataset, retrieved the data from wikipedia and created the file contai
 #### David Froelicher:
 Worked on parsing casualties and strengths. Found correlations between them and created visuals. Exploration analysis on links between victory types and features, tried to build a classifier to give a result prediction. Worked on writing the notebook and the report.
 #### Marguerite Delcourt:
-Parsed dates and coordinates. Performed analysis and plots by finding correlations between dates/durations, dates/geolocalisation, casualties/time and casualties/duration. Worked on writing the notebook, the report and the readme file.
+Parsed dates and coordinates. Performed analysis and plots by finding correlations between dates/durations, dates/geolocalisation, casualties/time, casualties/duration and the random classifier. Worked on writing the notebook, the report and the readme file.
 #### Final: 
 Christian Mouchet will do the oral presentation and we will all collaboratively work on the poster.
