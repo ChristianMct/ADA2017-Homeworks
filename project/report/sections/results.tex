@@ -1,8 +1,8 @@
-In this Section, we study the information that we can infer from the dataset about the battles and their evolution throughout history. We start by observing how the duration of the battles and the number of casualties progressed during a millennium. Then, we focus on the outcome of the battles, we try to single out the typical features of a victorious combatant and how we can predict or not the result of a conflict. 
+In this Section, we report on our analysis of the dataset we built, focusing on the most interesting findings. The interested reader will find our data exploration and extended analysis in the companion notebook.
 
 \subsection{Duration of the Battles}
 
-We observe that the duration of the battles over the last millenium increased increased almost continuously. In fact, in Figure \ref{fig:durThByCent}, we observe that the order of magnitude of the duration of a battle has never been higher than nowadays. Notice that the average duration of a battle was almost 34 days during the XX$^{th}$ century while it is currently of 64 days in the XXI$^{st}$ century.
+We observe that the duration of the battles over the last millennium increased almost monotonically. In fact, we can see in Figure \ref{fig:durThByCent} that the average duration of a battle has never been higher than nowadays. Notice that the average duration of a battle was almost 34 days during the XX$^{th}$ century while it is currently of 64 days in the XXI$^{st}$ century.
 
  \begin{figure}[h]
 	\centering	\includegraphics[width=\linewidth]{figures/durThByCent}
@@ -21,20 +21,23 @@ In Figure \ref{fig:casuPerCent}, we notice that the percentage of soldiers engag
 
 \subsection{Indecisiveness of the Battles}
 
-We observe, in Figure \ref{fig:IndecBattles}, that battles are more indecisive nowadays than they were in the past. In fact, this number (in order of magnitude) is increasing since year 1200 and increased at a higher rate over the last last century. This can be explained by two factors: the first is that battles in the further past were probably often reported by the winner who wouldn't consider it as indecisive. The second is that the two world wars in the  XX$^{th}$ century also contain a lot of strategic and indecisive battles that served a higher or more general goal.
+We observe, in Figure \ref{fig:IndecBattles}, that battles tend to be more indecisive nowadays than they were in the past. In fact, the fraction of indecisive battle within one century is increasing slowly since year 1200 at a much higher rate over the last two centuries. This can be explained by two factors: the first being that battles in the further past were most likely reported by the winner who would, and with less accuracy and objectiveness as they are now. The second explanation lies in operational theaters (like cities) and tactics enabled by modern weaponry such as long range weapons. Ultimately, longer distance between the combatants and modern combat vehicles greatly enhanced the ability to retreat.
+
  \begin{figure}[h]
 	\centering	\includegraphics[width=\linewidth]{figures/indThByCent}
 	\caption{Mean of the number of indecisive battles over the last thousand years by century on a logarithmic scale.}\label{fig:IndecBattles}
 	\centering
 \end{figure}
 
-From Figures \ref{fig:durThByCent}, \ref{fig:casuPerCent} and \ref{fig:IndecBattles}, we conclude that battles are longer, make less casualties and are more indecisive over the years. This supports the fact that nowadays the battle's purpose is not only to invade another territory by beating the other combatant. In fact, modern battles seem to be more complicated in the sense that they often serve a higher strategic goal and do not always result in a decisive victory.
+From Figures \ref{fig:durThByCent}, \ref{fig:casuPerCent} and \ref{fig:IndecBattles}, we conclude that battles are longer, make less casualties and are more indecisive over the years. This supports the fact that nowadays the battle's purpose is not only to invade another territory by beating the other combatant. In fact, modern battles seem to be more complex in the sense that they often serve a higher strategic or even political goal and have their result studied in many different axis.
 
-\subsection{Outcome of the Battles}
+\subsection{Outcome of the battles}
 
-With Figure \ref{fig:victoryAdvantage}, we study the importance for a combatant to have an advantage with respect to the number of casualties (less victims), the number of soldiers (higher strength) and the percentage of casualties among soldiers (casualty ratio). It illustrates the percentage of battles that resulted in a type of victory for a combatant that had an advantage according to one of these features. Our main observation is that the combatant that had less casualties won in almost 80\% of the cases. We noticed that a higher strength resulted in a victory in only less than 50\% of the battles, meaning that in order to predict the winner of a battle, one should simply choose the combatant that suffers less casualties. In order to support our hypothesis, we trained a random forrest classifier on our dataset. Like us, it chose the number of casualties as most important feature to decide the winning side.
+We continue our analysis by studying the advantage provided to a combatant that has fewer of casualties, larger strengths  and  lower casualties to strength ratio. We compute the percentage of battles won by a combatant that had at least one of these advantages, grouped by three different victory types: \textit{tactical}, \textit{strategic},  \textit{decisive}. The \textit{tactical} level is the lower one in the military level of planning\cite{military_planning}, therefore involving narrower scope decisions and shorter-term consequences. On the other end, the \textit{strategic} level is the highest one, involving longer-term
+consequences.
 
-We notice that the number of casualties is less important for a strategic victory when the goal is not to inflict more damage to the opponent but to progress towards a more general purpose.
+We first observe that an advantage in strength only is not sufficient to increase one's chances to win a battle, as this would completely disregard other tactical advantage of the opponent. On the other hand, the a-posteriori advantage in the casualties (both in ratio and absolute value) is much more significant, as it is present in around 75\% of the victories for all but strategic ones. Very interestingly, we observe that for this victory type, an advantage in absolute casualties has much less effect on the outcome (in fact, it looks like it is the opposite), and a little less effect in the ratio advantage. This would typically generalize the mentioned case of the Battle for Stalingrad, where the Nazi Germany strategy was not able to provide victory even though it was tactically superior. Figure \ref{fig:victoryAdvantage} illustrates these observations.
+
  \begin{figure}[h]
 	\centering	\includegraphics[width=\linewidth]{figures/VictoryAdvantage}
 	\caption{Victory percentage with advantage in either strength, casualties or casualty ratio.}\label{fig:victoryAdvantage}
