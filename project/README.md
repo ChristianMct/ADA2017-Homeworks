@@ -3,8 +3,6 @@
 
 # A Millenium of Battles
 
-###Link to milestone 2 notebook: [NBViewer](https://nbviewer.jupyter.org/github/ChristianMct/ADA2017-Homeworks/blob/master/project/milestone_2.ipynb)
-
 ## Abstract
 For centuries, battles have been and still are the most direct tool used by established powers to project or extend their For centuries, battles have been and still are the most direct action taken by established powers to project or extend their influence. By collecting, processing and analyzing data from the open source, collaborative Wikipedia platform, we are able to better understand how battles were fought throughout the last millennium. In this document, we report our findings from an analysis made over more than 7000 battles. We expose trends in duration and casualties over the years. Additionally, we show that the latter is the most important battle’s feature in determining the short-term winner which is not necessarily the long-term one.
 
