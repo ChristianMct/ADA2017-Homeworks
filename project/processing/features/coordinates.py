@@ -1,4 +1,5 @@
-from .feature_utils import isfloat
+import mwparserfromhell as mw
+from .feature_utils import isfloat, get_templates
 
 LATITUDE = "latitude"
 LONGITUDE = "longitude"
@@ -26,6 +27,10 @@ def dms2dec(coord):
 
 
 def get_coords_data(tpl):
+
+    if not tpl:
+        return None, None
+
     # gets rid of some useless params
     params = [str(param).strip() for param in tpl.params if isfloat(param) | (str(param).strip() in CARDINALS)]
 
@@ -42,7 +47,13 @@ def get_coords_data(tpl):
 
 def get_features(battle_json):
     # Prioritize page level coords
-    latitude, longitude = get_coords_data(battle_json.get("coordinates", battle_json["infobox"].get("coordinates")))
+    tpls = get_templates(mw.parse(battle_json.get("coordinates", battle_json["infobox"].get("coordinates"))), "coord")
+
+    if tpls:
+        latitude, longitude = get_coords_data(tpls[0])
+    else:
+        latitude, longitude = None, None
+
     return {
         LATITUDE: latitude,
         LONGITUDE: longitude,
